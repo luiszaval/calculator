@@ -36,9 +36,10 @@ function operate(operator, num1, num2) {
 
 //DOM elements
 const display = document.querySelector('#display');
-const numBtns = document.querySelectorAll('.num');
 const clearBtn = document.querySelector('#clear')
 const enterBtn = document.querySelector('#enter');
+const backspaceBtn = document.querySelector('#backspace')
+const numBtns = document.querySelectorAll('.num');
 const operatorsBtns = document.querySelectorAll('.operator')
 const numberBtnArr = [...numBtns];
 const opBtnArr = [...operatorsBtns];
@@ -57,8 +58,8 @@ function handleDisplay() {
 }
 
 function onNumClicked(num) {
-    if (result) { // handles if new number pressed after result calculated
-        handleClear();
+    if(num === "."){
+        return !userInput.includes(num) ? handleInputChange(num) : null
     }
     handleInputChange(num);
 }
@@ -68,31 +69,44 @@ function handleInputChange(num) {
     handleDisplay();
 }
 
-function onOpClicked(op){
-    if (userInput) {
-        firstNum = +userInput;
-        userInput = '';
-        operator = op;
-        handleDisplay()
-    } else if (operator && firstNum) { // handles if operator pressed back to back
-        operator = op;
-        handleDisplay()
-    } else { //handles if first thing pressed is operator
+function onOpClicked(op) {
+    if(firstNum === '' && !userInput && result === ''){//first thing pressed is operator
         firstNum = 0;
         operator = op;
         handleDisplay()
+    }else if(userInput && firstNum === ''){ // num pressed then operator
+        firstNum = +userInput;
+        userInput = '';
+        result = '';
+        operator = op;
+        handleDisplay()
+    }else if(userInput && firstNum !== ''){//num pressed then operator then num then operator
+        secondNum = +userInput;
+        result = parseFloat(operate(operator, firstNum, secondNum).toFixed(2));
+        display.textContent = `${result} ${op}`
+        operator = op;
+        firstNum = result;
+        secondNum = '';
+        userInput = '';
+    } else if (!userInput && firstNum !=='' && result === '') {
+        operator = op;
+        handleDisplay();
+    }else if(result !== '' && !userInput && firstNum === ''){ // already calculated and operator is pressed
+        firstNum = result;
+        result = '';
+        operator = op;
+        handleDisplay();
     }
 }
 
 function onEnterClicked(){
-    if (firstNum !== '' && operator) {
+    if (firstNum !== '' && operator && userInput ) {
         secondNum = +userInput;
-        result = operate(operator, firstNum, secondNum)
-        console.log({ userInput, firstNum, operator, secondNum, result })
+        result = parseFloat(operate(operator, firstNum, secondNum).toFixed(2));
         display.textContent = result;
-        //handles if operator pressed after result calculated
-        userInput = result;
-        result = '';
+        userInput = '';
+        secondNum =''; 
+        firstNum  = '';
     }
 }
 
@@ -103,6 +117,26 @@ function handleClear(){
     operator = '';
     result = '';
     display.textContent = 00;
+}
+
+function handleBackspace(){
+    if(firstNum !== '' && operator && userInput){ //if firstNum and operator are saved delete userInput
+        userInput = userInput.slice(0,-1);
+        handleDisplay();
+    }else if(firstNum !== '' && operator){ //once userInput has been deleted delete operator
+        operator  = '';
+        handleDisplay()
+    }else if(firstNum !== ''){ // once operator has been deleted delete firstNum
+        firstNumStr  = firstNum.toString().slice(0,-1);
+        if(firstNumStr){ //check to see if firstNum still exists
+            firstNum = +(firstNum.toString().slice(0, -1)); //if firstNum still exists update result
+            handleDisplay();
+        }else{
+            handleClear(); //if fistNum is completely deleted then clear all data
+        }
+    }else{
+        handleClear();
+    }
 }
 
 const endTransition = (e) => {
@@ -126,6 +160,8 @@ enterBtn.addEventListener('click', onEnterClicked)
 
 clearBtn.addEventListener('click',handleClear);
 
+backspaceBtn.addEventListener('click', handleBackspace)
+
 allBtns.forEach(btn => btn.addEventListener('click', ()=>{
     btn.classList.add('clicked')
 }))
@@ -135,27 +171,10 @@ allBtns.forEach(btn => btn.addEventListener('transitionend', endTransition))
 
 
 window.addEventListener('keydown', (e)=>{
+    console.log({ userInput, firstNum, operator, secondNum, result })
     let key = e.key;
     let isNum = numberBtnArr.some(btn => btn.textContent == key)
     let isOperator = opBtnArr.some(btn => btn.textContent == key)
-    // let isNum = numbers.includes(key);
-    // let isOperator = operators.includes(key);
-    console.log({key,isNum, isOperator})
-    switch (key) {
-        case "Enter":
-            enterBtn.classList.add('clicked');
-            onEnterClicked();
-            break;
-        case "Backspace":
-            clearBtn.classList.add('clicked');
-            handleClear();
-            break;
-        default:
-            break;3
-    }
-    // return isNum ? onNumClicked(key) 
-    //         : isOperator ? onOpClicked(key)
-    //         : null;
     if(isNum){
         let btn = numberBtnArr.find(btn=>btn.textContent === key)
         btn.classList.add('clicked')
@@ -164,5 +183,42 @@ window.addEventListener('keydown', (e)=>{
         let btn = opBtnArr.find(btn => btn.textContent == key)
         btn.classList.add('clicked')
         onOpClicked(key)
+    }else if( key === 'Enter'){
+        enterBtn.classList.add('clicked');
+        onEnterClicked();
+    }else if(key === 'Backspace'){
+        backspaceBtn.classList.add('clicked');
+        handleBackspace();
     }
 })
+
+window.addEventListener('click', ()=>{
+    console.log({ userInput, firstNum, operator, secondNum, result })
+})
+
+
+//need to work out bugs
+//would like to integrate into OOP
+
+/******BUGS*****
+* DONE
+    * on new operator pressed without equal being pressed should run operation and no result
+    * round numbers to 2 decimal places
+    * what happens when pressing = before all operands
+    * clear should wipe out all data
+    * dont allow user to divide by 0
+    * test keyboard support
+    * add a . btn thats only allowed to be pressed once
+     backspace button
+* NEED TO DO
+    * style it up
+    * on hover animation
+    * add style themes
+    * on enter pressed display calculation up top and result in the bottom
+    * on operation in progress display result up top and operation bottom
+    * on delete should only work while in operation mode
+    * show result top left
+    * operand top right
+    * current value in the middle
+
+*/
