@@ -57,5 +57,10 @@ button{
 .clicked{
   transform: scale(.9);
   box-shadow: 5px 10px 18px black;
+  opacity: .9;
 }
 
+.btn:hover{
+    transform: scale(1.1);
+    opacity: .9;
+}

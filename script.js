@@ -132,7 +132,7 @@ function handleBackspace(){
             firstNum = +(firstNum.toString().slice(0, -1)); //if firstNum still exists update result
             handleDisplay();
         }else{
-            handleClear(); //if fistNum is completely deleted then clear all data
+            handleClear(); //if fisrtNum is completely deleted then clear all data
         }
     }else{
         handleClear();
@@ -197,28 +197,14 @@ window.addEventListener('click', ()=>{
 })
 
 
-//need to work out bugs
-//would like to integrate into OOP
-
-/******BUGS*****
-* DONE
-    * on new operator pressed without equal being pressed should run operation and no result
-    * round numbers to 2 decimal places
-    * what happens when pressing = before all operands
-    * clear should wipe out all data
-    * dont allow user to divide by 0
-    * test keyboard support
-    * add a . btn thats only allowed to be pressed once
-     backspace button
+/*
 * NEED TO DO
-    * style it up
-    * on hover animation
-    * add style themes
     * on enter pressed display calculation up top and result in the bottom
     * on operation in progress display result up top and operation bottom
-    * on delete should only work while in operation mode
     * show result top left
     * operand top right
     * current value in the middle
-
+    * 
+    * style it up
+    * add style themes
 */
